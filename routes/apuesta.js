@@ -9,8 +9,8 @@ router.post("/registerApuesta", async (req, res) => {
 
 
 router.post("/filtrarApuesta", async (req, res) => {
-  const {email, date}= JSON.parse(req.body) ;
-  const viewResponse = await apuestaController.view(email, date);
+  const {email, dateI, dateS}= JSON.parse(req.body) ;
+  const viewResponse = await apuestaController.view(email, dateI, dateS);
   res.send(viewResponse)
 });
 
