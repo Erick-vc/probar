@@ -1,3 +1,4 @@
+const bcryptjs = require("bcryptjs");
 const AWS = require("aws-sdk");
 const { response } = require("express");
 const ServiceResponse = require("../entities/servicesResponse");
@@ -37,25 +38,28 @@ const facturaServices = {
         }
     },
 
-    //TODO: Filtrar por fecha
-    /* getByDate: async (email, date1) => {
+    getByDate: async (email, DATE1, DATE2) => {
         let serviceResponseGet = new ServiceResponse();
 
-        const PK = "VA-FACTURA#" + email;
+        const GSI1_PK = "VA-FACTURA#" + email;
 
         var params = {
             TableName: "villa_apuestas_database",
-            Key: {
-                PK: PK,
-                SK: mode,
+            IndexName: "GSI1",
+            KeyConditionExpression:
+                "GSI1_PK = :GSI1_PK and GSI1_SK BETWEEN :DATE1 AND :DATE2",
+            ExpressionAttributeValues: {
+                ":GSI1_PK": GSI1_PK,
+                ":DATE1": DATE1,
+                ":DATE2": DATE2,
             },
         };
 
         try {
-            const result = await dynamodb.get(params).promise();
+            const result = await dynamodb.query(params).promise();
 
             serviceResponseGet.setSucessResponse(
-                "Facturas encontrada",
+                "Facturas encontradas",
                 result.Items
             );
         } catch (error) {
@@ -63,19 +67,19 @@ const facturaServices = {
         } finally {
             return serviceResponseGet;
         }
-    }, */
+    },
 
     save: async (email, ammount, mode, transfer_mode) => {
         let serviceResponseSave = new ServiceResponse();
-        const date = new Date();
+        const today = new Date();
+        var date = today.toISOString();
         const PK = "VA-FACTURA#" + email;
-        //TODO: hasheado -> fecha, hora, email
-        const SK = "123456";
+        const hashid = await bcryptjs.hash(email + date, 8);
+        const SK = hashid;
         const GSI1_PK = PK;
-        //TODO: Date en String
-        const GSI1_SK = date.toISOString();
+        const GSI1_SK = date;
         const GSI2_PK = PK;
-        const GSI2_SK = "recarga";
+        const GSI2_SK = mode;
 
         const factura = {
             PK,

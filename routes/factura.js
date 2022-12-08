@@ -12,13 +12,23 @@ router.post("/registerFactura", async (req, res) => {
     res.send(registerResponse);
 });
 
-router.post("/obtenerFactura", async (req, res) => {
+router.post("/obtenerFacturaPorModo", async (req, res) => {
     const { email, mode } = JSON.parse(req.body);
     const registerResponse = await facturaController.getInvoiceByMode(
         email,
         mode
     );
     res.send(registerResponse);
+});
+
+router.post("/obtenerFacturaPorFecha", async (req, res) => {
+    const { email, dateI, dateS } = JSON.parse(req.body);
+    const viewResponse = await facturaController.getInvoiceByDate(
+        email,
+        dateI,
+        dateS
+    );
+    res.send(viewResponse);
 });
 
 module.exports = router;
