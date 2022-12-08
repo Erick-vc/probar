@@ -1,3 +1,4 @@
+const bcryptjs = require("bcryptjs");
 const AWS = require("aws-sdk");
 const { response } = require("express");
 const ServiceResponse = require("../entities/servicesResponse");
@@ -8,11 +9,13 @@ const apuestaService = {
   save: async (email, mode, couta, local, monto, visitor, ligue) => {
     let serviceResponseSave = new ServiceResponse();
     const today = new Date();
-    var date = today.toLocaleDateString();
-    //****************************************
+    var date = today.toISOString();
+
     const PK = "VA-APUESTA#" + email;
-    // email + fehca + hora → hasheado
-    const SK = "12345";
+
+    const hashid = await bcryptjs.hash(email+date, 8);
+
+    const SK = hashid;
     const GSI1_PK = PK;
     const GSI1_SK = date;
 
@@ -46,17 +49,16 @@ const apuestaService = {
     }
   },
 
-  get: async (email, date) => {
+  get: async (email, DATE1, DATE2) => {
     let serviceResponseGet = new ServiceResponse();
 
     const GSI1_PK = "VA-APUESTA#" + email;
-    const GSI1_SK = date;
 
     var params = {
       TableName: "villa_apuestas_database",
-       IndexName: "GSI1",
-      KeyConditionExpression: "GSI1_PK = :GSI1_PK and GSI1_SK = :GSI1_SK",
-      ExpressionAttributeValues: { ":GSI1_PK": GSI1_PK,":GSI1_SK": GSI1_SK },
+      IndexName: "GSI1",
+      KeyConditionExpression: "GSI1_PK = :GSI1_PK and GSI1_SK BETWEEN :DATE1 AND :DATE2",
+      ExpressionAttributeValues: { ":GSI1_PK": GSI1_PK, ":DATE1": DATE1, ":DATE2": DATE2},
     };
 
     try {
