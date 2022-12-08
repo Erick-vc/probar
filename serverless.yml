@@ -9,8 +9,11 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:*
+        - dynamodb:Query
       Resource:
         - arn:aws:dynamodb:us-east-1:699969168678:table/villa_apuestas_database 
+        - arn:aws:dynamodb:us-east-1:699969168678:table/villa_apuestas_database/index/GSI1
+        - arn:aws:dynamodb:us-east-1:699969168678:table/villa_apuestas_database/index/GSI2
 
 
 functions:

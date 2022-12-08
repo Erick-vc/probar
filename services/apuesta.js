@@ -12,7 +12,7 @@ const apuestaService = {
     //****************************************
     const PK = "VA-APUESTA#" + email;
     // email + fehca + hora → hasheado
-    const SK = "123";
+    const SK = "12345";
     const GSI1_PK = PK;
     const GSI1_SK = date;
 
@@ -54,23 +54,19 @@ const apuestaService = {
 
     var params = {
       TableName: "villa_apuestas_database",
-      IndexName: "GSI1",
-      Key: {
-        "GSI1_PK": GSI1_PK,
-        "GSI1_SK": GSI1_SK,
-      },
-      KeyConditionExpression: "GSI1_PK = :GSI1_PK",
-      ExpressionAttributeValues: { ":GSI1_PK": GSI1_PK},
+       IndexName: "GSI1",
+      KeyConditionExpression: "GSI1_PK = :GSI1_PK and GSI1_SK = :GSI1_SK",
+      ExpressionAttributeValues: { ":GSI1_PK": GSI1_PK,":GSI1_SK": GSI1_SK },
     };
 
     try {
-      const result = await dynamodb.get(params).promise();
+      const result = await dynamodb.query(params).promise();
       serviceResponseGet.setSucessResponse("Apuesta encontrado", result.Items);
     } catch (error) {
       serviceResponseGet.setErrorResponse(error.message, 500);
     } finally {
-      console.log(GSI1_PK);
-      console.log(GSI1_SK);
+      // console.log(GSI1_PK);
+      // console.log(GSI1_SK);
       console.log(params);
       return serviceResponseGet;
     }
