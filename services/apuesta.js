@@ -11,13 +11,17 @@ const apuestaService = {
         const today = new Date();
         var date = today.toISOString();
 
-        const PK = "VA-APUESTA#" + email;
-
         const hashid = await bcryptjs.hash(email + date, 8);
 
+        const PK = "VA-APUESTA#" + email;
         const SK = hashid;
         const GSI1_PK = PK;
         const GSI1_SK = date;
+
+        const status = "en curso";
+
+        const GSI2_PK = PK;
+        const GSI2_SK = status;
 
         const apuesta = {
             PK,
@@ -31,6 +35,9 @@ const apuestaService = {
             ligue,
             GSI1_PK,
             GSI1_SK,
+            status,
+            GSI2_PK,
+            GSI2_SK,
         };
 
         var params = {
@@ -41,22 +48,16 @@ const apuestaService = {
         try {
             await dynamodb.put(params).promise();
 
-            serviceResponseSave.setSucessResponse(
-                "Apuesta registrada ",
-                apuesta
-            );
+            serviceResponseSave.setSucessResponse("Apuesta registrada ", apuesta);
         } catch (error) {
             serviceResponseSave.setErrorResponse(error.message, 500);
         } finally {
             return serviceResponseSave;
         }
     },
-
-    get: async (email, DATE1, DATE2) => {
+    getByDate: async (email, DATE1, DATE2) => {
         let serviceResponseGet = new ServiceResponse();
-
         const GSI1_PK = "VA-APUESTA#" + email;
-
         var params = {
             TableName: "villa_apuestas_database",
             IndexName: "GSI1",
@@ -68,18 +69,36 @@ const apuestaService = {
                 ":DATE2": DATE2,
             },
         };
-
         try {
             const result = await dynamodb.query(params).promise();
-            serviceResponseGet.setSucessResponse(
-                "Apuesta encontrado",
-                result.Items
-            );
+            serviceResponseGet.setSucessResponse("Apuesta encontrado", result.Items);
         } catch (error) {
             serviceResponseGet.setErrorResponse(error.message, 500);
         } finally {
-            // console.log(GSI1_PK);
-            // console.log(GSI1_SK);
+            console.log(params);
+            return serviceResponseGet;
+        }
+    },
+
+    getByStatus: async (email, status) => {
+        let serviceResponseGet = new ServiceResponse();
+        const GSI2_PK = "VA-APUESTA#" + email;
+        const GSI2_SK = status;
+        var params = {
+            TableName: "villa_apuestas_database",
+            IndexName: "GSI2",
+            KeyConditionExpression: "GSI2_PK = :GSI2_PK and GSI2_SK = :GSI2_SK",
+            ExpressionAttributeValues: {
+                ":GSI2_PK": GSI2_PK,
+                ":GSI2_SK": GSI2_SK,
+            },
+        };
+        try {
+            const result = await dynamodb.query(params).promise();
+            serviceResponseGet.setSucessResponse("Apuesta encontrada", result.Items);
+        } catch (error) {
+            serviceResponseGet.setErrorResponse(error.message, 500);
+        } finally {
             console.log(params);
             return serviceResponseGet;
         }

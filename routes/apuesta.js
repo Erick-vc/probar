@@ -14,6 +14,12 @@ router.post("/filtrarApuesta", async (req, res) => {
   res.send(viewResponse)
 });
 
+router.post("/buscarApuesta", async (req, res) => {
+  const {email, status} = JSON.parse(req.body);
+  const viewResponse = await apuestaController.getInvoiceByStatus(email,status);
+  res.send(viewResponse);
+})
+
 
 router.use((req, res, next) => {
   return res.status(404).json({
