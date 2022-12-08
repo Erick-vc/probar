@@ -35,6 +35,37 @@ view: async (email)=>{
 },
 
 
+updateCredits: async (email,credits)=>{
+    const responseGet = await userService.get(email);
+
+    if(!responseGet.data){
+        responseGet.setErrorResponse("El usuario no existe",400);
+        return responseGet;
+    }
+    const credit=parseFloat(responseGet.data.credits)+credits;
+    const creditos = String(credit);
+
+    const resposeUpdate = await userService.updateCredits(email,creditos);
+
+       return resposeUpdate;     
+},
+
+
+updatePassword: async (email,password)=>{
+    const responseGet = await userService.get(email);
+
+    if(!responseGet.data){
+        responseGet.setErrorResponse("El usuario no existe",400);
+        return responseGet;
+    }
+
+    const hashPassword= await bcryptjs.hash(password,8);
+    const resposeUpdate = await userService.updatePassword(email,hashPassword);
+
+       return resposeUpdate;     
+},
+
+
 login: async (email,password)=>{
     const responseLogin = await userService.get(email);
 

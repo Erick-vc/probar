@@ -78,6 +78,72 @@ const userServices={
         return serviceResponseSave;
     }
 
+   },
+
+   updateCredits: async (email,credits)=>{
+    
+    let serviceResponseupdateCredits= new ServiceResponse();
+    
+    const PK="VA-USUARIO#"+email;
+    
+    var params = {
+        TableName: "villa_apuestas_database",
+        Key:{
+            "PK": PK,
+            "SK": email
+        },
+        UpdateExpression: "SET credits = :credits", 
+        ExpressionAttributeValues: {
+          ":credits": credits
+        },
+        ReturnValues: 'ALL_NEW' 
+    };
+
+    try{
+     const result= await dynamodb.update(params).promise();   
+
+     serviceResponseupdateCredits.setSucessResponse("Creditos actualizados",result.Item)
+
+    }catch(error){
+        serviceResponseupdateCredits.setErrorResponse(response,500) 
+
+    }finally{
+        return serviceResponseupdateCredits;
+    }
+
+   },
+
+   updatePassword: async (email,password)=>{
+    
+    let serviceResponseupdateCredits= new ServiceResponse();
+    
+    const PK="VA-USUARIO#"+email;
+    
+    var params = {
+        TableName: "villa_apuestas_database",
+        Key:{
+            "PK": PK,
+            "SK": email
+        },
+        UpdateExpression: "SET password = :password", 
+        ExpressionAttributeValues: {
+          ":password": password
+        },
+        ReturnValues: 'ALL_NEW' 
+    };
+
+    try{
+     const result= await dynamodb.update(params).promise();   
+
+     serviceResponseupdateCredits.setSucessResponse("Contraseña Actualizada",result.Item)
+
+    }catch(error){
+        serviceResponseupdateCredits.setErrorResponse(response,500) 
+
+    }finally{
+        return serviceResponseupdateCredits;
+    }
+
    }
 
 
