@@ -26,7 +26,7 @@ router.get("/", (req, res, next) => {
       res.send(viewResponse)
     });
 
-    router.post("/login", validInfo, async (req, res) => {
+    router.post("/login", async (req, res) => {
       const { email, password } = req.body;
       const loginResponse = await userController.login(email, password);
       res.send(loginResponse);
