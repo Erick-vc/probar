@@ -1,8 +1,27 @@
+const { response } = require("express");
 const ServiceResponse = require("../entities/servicesResponse");
 const facturaService = require("../services/factura");
+const userService = require("../services/user");
 
 const facturaController = {
     register: async (email, ammount, mode, transfer_mode) => {
+        const responseGet = await userService.get(email);
+        let credit;
+        if (!responseGet.data) {
+            responseGet.setErrorResponse("El usuario no existe", 400);
+            return responseGet;
+        }
+        if (parseFloat(ammount) > parseFloat(responseGet.data.credits)) {
+            responseGet.setErrorResponse("Retiro mayor al saldo", 450);
+            return responseGet;
+        }
+        if (mode === "retiro") {
+            credit = parseFloat(responseGet.data.credits) - parseFloat(ammount);
+        } else {
+            credit = parseFloat(responseGet.data.credits) + parseFloat(ammount);
+        }
+        const creditos = String(credit);
+        await userService.updateCredits(email, creditos);
         const responseSave = await facturaService.save(
             email,
             ammount,
