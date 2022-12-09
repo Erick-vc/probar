@@ -11,7 +11,10 @@ const facturaController = {
             responseGet.setErrorResponse("El usuario no existe", 400);
             return responseGet;
         }
-        if (parseFloat(ammount) > parseFloat(responseGet.data.credits)) {
+        if (
+            mode === "retiro" &&
+            parseFloat(ammount) > parseFloat(responseGet.data.credits)
+        ) {
             responseGet.setErrorResponse("Retiro mayor al saldo", 450);
             return responseGet;
         }
@@ -33,6 +36,13 @@ const facturaController = {
 
     getInvoiceByMode: async (email, mode) => {
         const responseGet = await facturaService.getByMode(email, mode);
+        const responseGetUser = await userService.get(email);
+
+        if (!responseGetUser.data) {
+            responseGet.setErrorResponse("El usuario no existe", 400);
+            return responseGetUser;
+        }
+
         return responseGet;
     },
 
@@ -59,9 +69,12 @@ const facturaController = {
 
         const responseGet = await facturaService.getByDate(email, DATE1, DATE2);
 
-        // if (!responseGet.data) {
-        //   responseGet.setErrorResponse("No se encontraron apuestas", 400);
-        //   return responseGet;
+        const responseGetUser = await userService.get(email);
+
+        if (!responseGetUser.data) {
+            responseGet.setErrorResponse("El usuario no existe", 400);
+            return responseGetUser;
+        }
 
         return responseGet;
     },
